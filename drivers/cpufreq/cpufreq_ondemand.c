@@ -44,6 +44,17 @@
 #define MAX_FREQUENCY_UP_THRESHOLD		(100)
 #define MIN_FREQUENCY_DOWN_DIFFERENTIAL		(1)
 
+#define STEP_UP
+#ifdef STEP_UP
+#define DEF_FREQ_STEP					(20)
+#define DEF_STEP_UP_EARLY_HISPEED			(787200)
+#define DEF_STEP_UP_INTERIM_HISPEED			(998400)
+#define DEF_SAMPLING_EARLY_HISPEED_FACTOR		(1)
+#define OPTIMAL_FREQ                                    (1094400)
+#define SYNC_FREQ                                       (787200)
+#define DEF_SAMPLING_INTERIM_HISPEED_FACTOR		(1)
+#endif
+
 /*
  * The polling frequency of this governor depends on the capability of
  * the processor. Default polling frequency is 1000 times the transition
