@@ -1317,6 +1317,7 @@ CONFIG_LLC=y
 # CONFIG_PHONET is not set
 # CONFIG_IEEE802154 is not set
 CONFIG_NET_SCHED=y
+# CONFIG_CPU_BOOST is not set
 
 #zram
 CONFIG_ZRAM=y
