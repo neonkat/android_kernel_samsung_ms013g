@@ -243,12 +243,10 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 	  else if [ -x /bin/bash ]; then echo /bin/bash; \
 	  else echo sh; fi ; fi)
 
-GRAPHITE = -fgraphite -fgraphite-identity -floop-interchange -ftree-loop-distribution -floop-strip-mine -floop-block -ftree-loop-linear
-
 HOSTCC       = gcc
 HOSTCXX      = g++
-HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -O3 -fomit-frame-pointer $(GRAPHITE)
-HOSTCXXFLAGS = -O3 $(GRAPHITE)
+HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -O3 -fomit-frame-pointer -pipe
+HOSTCXXFLAGS = -O3 
 
 # Decide whether to build built-in, modular, or both.
 # Normally, just do built-in.
@@ -355,11 +353,17 @@ endif
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void $(CF)
 
-KERNELFLAGS     = $(GRAPHITE)
-CFLAGS_MODULE   =
-AFLAGS_MODULE   =
+OPTIMIZFLAGS	= -mvectorize-with-neon-quad \
+		  -fgcse-las -fgcse-sm -fipa-pta -fivopts -fomit-frame-pointer \
+		  -frename-registers -fsection-anchors -ftracer \
+		  -ftree-loop-im -ftree-loop-ivcanon -funsafe-loop-optimizations \
+		  -funswitch-loops -fweb -pipe
+
+KERNELFLAGS     = 
+CFLAGS_MODULE   = -DMODULE $(OPTIMIZFLAGS) -mfpu=neon-vfpv4
+AFLAGS_MODULE   = -DMODULE $(OPTIMIZFLAGS)
 LDFLAGS_MODULE  =
-CFLAGS_KERNEL	=
+CFLAGS_KERNEL	= -mfpu=neon-vfpv4 $(OPTIMIZFLAGS)
 AFLAGS_KERNEL	=
 CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
 
