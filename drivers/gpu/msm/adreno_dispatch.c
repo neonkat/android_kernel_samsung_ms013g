@@ -170,7 +170,7 @@ static inline struct kgsl_cmdbatch *adreno_dispatcher_get_cmdbatch(
 			 * it hasn't already been started
 			 */
 			if (!timer_pending(&cmdbatch->timer))
-				mod_timer(&cmdbatch->timer, jiffies + (5 * HZ));
+				mod_timer(&cmdbatch->timer, jiffies + msecs_to_jiffies(5000));
 		} else {
 			/*
 			 * Otherwise, delete the timer to make sure it is good
