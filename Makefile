@@ -192,8 +192,8 @@ SUBARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ \
 # Default value for CROSS_COMPILE is not to prefix executables
 # Note: Some architectures assign CROSS_COMPILE in their arch/*/Makefile
 export KBUILD_BUILDHOST := $(SUBARCH)
-ARCH		?=arm
-CROSS_COMPILE	?=/home/neonkat/android/toolchain/5.3/bin/arm-eabi-
+ARCH		:=arm
+CROSS_COMPILE	:=/home/neonkat/android/toolchain/5.3/bin/arm-eabi-
 
 # Architecture as present in compile.h
 UTS_MACHINE 	:= $(ARCH)
@@ -243,10 +243,12 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 	  else if [ -x /bin/bash ]; then echo /bin/bash; \
 	  else echo sh; fi ; fi)
 
+GRAPHITE = -fgraphite -fgraphite-identity -floop-interchange -ftree-loop-distribution -floop-strip-mine -floop-block -ftree-loop-linear -floop-nest-optimize
+
 HOSTCC       = gcc
 HOSTCXX      = g++
-HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -O3 -fomit-frame-pointer -pipe
-HOSTCXXFLAGS = -O3 
+HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -O3 -fomit-frame-pointer -pipe -DNDEBUG -fgcse-las -std=gnu89 $(GRAPHITE)
+HOSTCXXFLAGS = -O3 -pipe -DNDEBUG -fgcse-las -fgraphite -fgraphite-identity $(GRAPHITE)
 
 # Decide whether to build built-in, modular, or both.
 # Normally, just do built-in.
@@ -355,16 +357,18 @@ CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 
 OPTIMIZFLAGS	= -mvectorize-with-neon-quad \
 		  -fgcse-las -fgcse-sm -fipa-pta -fivopts -fomit-frame-pointer \
-		  -frename-registers -fsection-anchors -ftracer \
+		  -frename-registers -fsection-anchors -ftracer -Wno-array-bounds \
 		  -ftree-loop-im -ftree-loop-ivcanon -funsafe-loop-optimizations \
-		  -funswitch-loops -fweb -pipe
+		  -funswitch-loops -fweb -pipe \
+                  -munaligned-access -fforce-addr -fsingle-precision-constant -fgcse-las
 
 KERNELFLAGS     = 
-CFLAGS_MODULE   = -DMODULE $(OPTIMIZFLAGS) -mfpu=neon-vfpv4
-AFLAGS_MODULE   = -DMODULE $(OPTIMIZFLAGS)
-LDFLAGS_MODULE  =
-CFLAGS_KERNEL	= -mfpu=neon-vfpv4 $(OPTIMIZFLAGS)
-AFLAGS_KERNEL	=
+MODFLAGS	= -DMODULE $(OPTIMIZFLAGS) $(GRAPHITE)
+CFLAGS_MODULE   = $(MODFLAGS) -mfpu=neon-vfpv4
+AFLAGS_MODULE   = $(MODFLAGS)
+LDFLAGS_MODULE  = -T $(srctree)/scripts/module-common.lds
+CFLAGS_KERNEL	= -mfpu=neon-vfpv4 $(OPTIMIZFLAGS) -fpredictive-commoning $(GRAPHITE)
+AFLAGS_KERNEL	= $(OPTIMIZFLAGS) $(GRAPHITE)
 CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
 
 
@@ -381,12 +385,13 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common \
 		   -Werror-implicit-function-declaration \
 		   -Wno-format-security \
-		   -fno-delete-null-pointer-checks
-KBUILD_AFLAGS_KERNEL :=
-KBUILD_CFLAGS_KERNEL :=
+		   -fno-delete-null-pointer-checks \
+                   $(OPTIMIZFLAGS)
+KBUILD_AFLAGS_KERNEL := $(OPTIMIZFLAGS) $(GRAPHITE)
+KBUILD_CFLAGS_KERNEL := $(OPTIMIZFLAGS) $(GRAPHITE)
 KBUILD_AFLAGS   := -D__ASSEMBLY__
-KBUILD_AFLAGS_MODULE  := -DMODULE
-KBUILD_CFLAGS_MODULE  := -DMODULE -fno-pic
+KBUILD_AFLAGS_MODULE  := $(MODFLAGS)
+KBUILD_CFLAGS_MODULE  := $(MODFLAGS) -fno-pic
 KBUILD_LDFLAGS_MODULE := -T $(srctree)/scripts/module-common.lds
 
 # Read KERNELRELEASE from include/config/kernel.release (if it exists)
@@ -574,7 +579,7 @@ all: vmlinux
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= -Os $(call cc-disable-warning,maybe-uninitialized,)
 else
-KBUILD_CFLAGS	+= -O3
+KBUILD_CFLAGS	+= -O3 -fmodulo-sched -fmodulo-sched-allow-regmoves -fno-tree-vectorize -Wno-array-bounds
 endif
 
 include $(srctree)/arch/$(SRCARCH)/Makefile
