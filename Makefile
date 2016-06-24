@@ -359,7 +359,7 @@ OPTIMIZFLAGS	= -mvectorize-with-neon-quad \
 		  -fgcse-las -fgcse-sm -fipa-pta -fivopts -fomit-frame-pointer \
 		  -frename-registers -fsection-anchors -ftracer -Wno-array-bounds \
 		  -ftree-loop-im -ftree-loop-ivcanon -funsafe-loop-optimizations \
-		  -funswitch-loops -fweb -pipe \
+		  -funswitch-loops -fweb -pipe -ffast-math -fsingle-precision-constant \
                   -munaligned-access -fforce-addr -fsingle-precision-constant -fgcse-las
 
 KERNELFLAGS     = 
