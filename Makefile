@@ -193,7 +193,7 @@ SUBARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ \
 # Note: Some architectures assign CROSS_COMPILE in their arch/*/Makefile
 export KBUILD_BUILDHOST := $(SUBARCH)
 ARCH		:=arm
-CROSS_COMPILE	:=/home/neonkat/android/toolchain/5.4/bin/arm-eabi-
+CROSS_COMPILE	:=/home/neonkat/android/toolchain/4.9/bin/arm-eabi-
 
 # Architecture as present in compile.h
 UTS_MACHINE 	:= $(ARCH)
@@ -355,16 +355,15 @@ endif
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void $(CF)
 
-OPTIMIZFLAGS	= -mvectorize-with-neon-quad \
+OPTIMIZFLAGS	= -mvectorize-with-neon-quad -mfpu=neon-vfpv4 \
 		  -fgcse-las -fgcse-sm -fipa-pta -fivopts -fomit-frame-pointer \
-		  -frename-registers -fsection-anchors -ftracer -Wno-array-bounds \
+		  -frename-registers -fsection-anchors -ftracer \
 		  -ftree-loop-im -ftree-loop-ivcanon -funsafe-loop-optimizations \
 		  -funswitch-loops -fweb -pipe -ffast-math -fsingle-precision-constant \
                   -munaligned-access -fforce-addr -fsingle-precision-constant -fgcse-las
 
-KERNELFLAGS     = 
 MODFLAGS	= -DMODULE $(OPTIMIZFLAGS) $(GRAPHITE)
-CFLAGS_MODULE   = $(MODFLAGS) -mfpu=neon-vfpv4
+CFLAGS_MODULE   = $(MODFLAGS) 
 AFLAGS_MODULE   = $(MODFLAGS)
 LDFLAGS_MODULE  = -T $(srctree)/scripts/module-common.lds
 CFLAGS_KERNEL	= -mfpu=neon-vfpv4 $(OPTIMIZFLAGS) -fpredictive-commoning $(GRAPHITE)
@@ -382,11 +381,12 @@ LINUXINCLUDE    := -I$(srctree)/arch/$(hdr-arch)/include \
 KBUILD_CPPFLAGS := -D__KERNEL__
 
 KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
-		   -fno-strict-aliasing -fno-common \
+		   -fno-strict-aliasing -fno-common -Wno-array-bounds \
 		   -Werror-implicit-function-declaration \
 		   -Wno-format-security \
 		   -fno-delete-null-pointer-checks \
-                   $(OPTIMIZFLAGS)
+                   -Wno-clobbered -Wno-maybe-uninitialized -Wno-strict-overflow $(OPTIMIZFLAGS) $(GRAPHITE)
+                
 KBUILD_AFLAGS_KERNEL := $(OPTIMIZFLAGS) $(GRAPHITE)
 KBUILD_CFLAGS_KERNEL := $(OPTIMIZFLAGS) $(GRAPHITE)
 KBUILD_AFLAGS   := -D__ASSEMBLY__
