@@ -4631,9 +4631,6 @@ void idle_balance(int this_cpu, struct rq *this_rq)
 
 			pulled_task = load_balance(this_cpu, this_rq,
 						   sd, CPU_NEWLY_IDLE, &balance);
-
-			pulled_task = load_balance(balance_cpu, balance_rq,
-					sd, CPU_NEWLY_IDLE, &balance);
 		}
 
 		interval = msecs_to_jiffies(sd->balance_interval);
@@ -4645,7 +4642,7 @@ void idle_balance(int this_cpu, struct rq *this_rq)
 			* now runnable tasks on this rq.
 			*/
  			if (pulled_task || this_rq->nr_running > 0) {
-			balance_rq->idle_stamp = 0;
+			this_rq->idle_stamp = 0;
 			break;
 		}
 	}

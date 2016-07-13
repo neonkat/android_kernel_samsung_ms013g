@@ -14,9 +14,6 @@ inline unsigned long int_sqrt(unsigned long x)
 	register unsigned long place;
 	register unsigned long root = 0;
 
-	op = x;
-	res = 0;
-
 	place = 1UL << (BITS_PER_LONG - 2);
 
 	do{
